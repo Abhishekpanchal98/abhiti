@@ -1,12 +1,141 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Page Title</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valentine Surprise</title>
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: linear-gradient(to right, #ff9a9e, #fad0c4);
+        font-family: 'Arial', sans-serif;
+        text-align: center;
+        overflow: hidden;
+        margin: 0;
+    }
+
+    h1 {
+        color: #fff;
+        font-size: 3em;
+        margin-bottom: 40px;
+        text-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .buttons {
+        display: flex;
+        gap: 30px;
+        margin-bottom: 50px; /* space for secret message */
+        position: relative;
+    }
+
+    button {
+        padding: 15px 40px;
+        font-size: 1.2em;
+        border: none;
+        border-radius: 50px; /* pill shape */
+        cursor: pointer;
+        transition: all 0.1s ease;
+    }
+
+    .yes {
+        background-color: #ff4b5c;
+        color: #fff;
+    }
+
+    .no {
+        background-color: #fff;
+        color: #ff4b5c;
+        position: fixed; /* now relative to viewport */
+    }
+
+    .secret-message {
+        font-size: 1em;
+        color: #fff;
+        opacity: 0.8;
+        font-style: italic;
+    }
+</style>
 </head>
 <body>
+<img src="teddy.png" style="width: 300px;"/>
+<h1>Aditi, will you be my Valentine? 💖</h1>
 
-<h1>My First Heading</h1>
-<p>My first paragraph.</p>
+<div class="buttons">
+    <button class="yes" id="yesBtn" onclick="alert('Yay! ❤️')">Yes</button>
+    <button class="no" id="noBtn">No</button>
+</div>
 
+<div class="secret-message" id="secretMessage">(dont you dare click the no button)</div>
+
+<script>
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const secretMessage = document.getElementById('secretMessage');
+    const buffer = 50; // distance to maintain from mouse
+
+    let vw = window.innerWidth;
+    let vh = window.innerHeight;
+
+    // Get Yes button position relative to viewport
+    const yesRect = yesBtn.getBoundingClientRect();
+
+    // Initialize No button next to Yes button
+    let btnX = yesRect.right + 30; // 30px gap
+    let btnY = yesRect.top; // aligned vertically
+    noBtn.style.left = btnX + 'px';
+    noBtn.style.top = btnY + 'px';
+
+    function teleportRandomly() {
+        btnX = Math.random() * (vw - noBtn.offsetWidth);
+        btnY = Math.random() * (vh - noBtn.offsetHeight);
+        noBtn.style.left = btnX + 'px';
+        noBtn.style.top = btnY + 'px';
+    }
+
+    function keepDistance(mouseX, mouseY) {
+        const btnRect = noBtn.getBoundingClientRect();
+        const btnCenterX = btnRect.left + btnRect.width / 2;
+        const btnCenterY = btnRect.top + btnRect.height / 2;
+
+        let dx = btnCenterX - mouseX;
+        let dy = btnCenterY - mouseY;
+        let distance = Math.sqrt(dx*dx + dy*dy);
+
+        if (distance < buffer) {
+            const angle = Math.atan2(dy, dx);
+            const moveX = Math.cos(angle) * (buffer + 30);
+            const moveY = Math.sin(angle) * (buffer + 30);
+
+            btnX += moveX;
+            btnY += moveY;
+
+            // Keep inside viewport
+            if (btnX < 0 || btnX > vw - btnRect.width || btnY < 0 || btnY > vh - btnRect.height) {
+                teleportRandomly();
+            } else {
+                noBtn.style.left = btnX + 'px';
+                noBtn.style.top = btnY + 'px';
+            }
+        }
+    }
+
+    document.addEventListener('mousemove', (e) => {
+        secretMessage.textContent = "(haha i think the no button is a bit shy)";
+        keepDistance(e.clientX, e.clientY);
+    });
+
+    noBtn.addEventListener('click', () => {
+        secretMessage.textContent = "(haha i think the no button is really shy!)";
+    });
+
+    window.addEventListener('resize', () => {
+        vw = window.innerWidth;
+        vh = window.innerHeight;
+    });
+</script>
 </body>
 </html>
